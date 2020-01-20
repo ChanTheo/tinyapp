@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/ChanTheo/tinyapp/issues"
   },
-  "homepage": "https://github.com/ChanTheo/tinyapp#readme"
+  "homepage": "https://github.com/ChanTheo/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
