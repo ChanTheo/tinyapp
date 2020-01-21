@@ -24,8 +24,9 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
   
-
 };
+
+// Article Routes
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -53,6 +54,20 @@ app.post("/urls", (req, res) => {
   const randomURL = generateRandomString();
   urlDatabase[randomURL] = req.body.longURL;
   res.redirect(`/urls/${randomURL}`)
+});
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  console.log(req.params)
+  const urlToDelete = req.params.shortURL;
+  
+
+  for (const shortURL in urlDatabase) {
+    if(shortURL == urlToDelete){
+      delete urlDatabase[shortURL]
+    }
+  }
+  console.log(urlDatabase)
+  res.redirect("/urls")
 });
 
 app.get("/urls/:shortURL", (req, res) => {
