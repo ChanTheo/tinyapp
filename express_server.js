@@ -4,6 +4,8 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
+
 
 // intializing all the packages we required
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -142,13 +144,14 @@ app.get("/register", (req, res) => {
     res.render('registration', { user: null });
   } else {
     let templateVars = { user: users[userID] };
-    res.redirect('/urls', templateVars);
+    res.redirect('/urls');
   }
 });
 app.post("/register", (req, res) => {
   const randomUserID = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password,10);
 
   if (email === "") {
     res.statusCode = 400;
@@ -168,7 +171,7 @@ app.post("/register", (req, res) => {
     let newUser = {
       id: randomUserID,
       email: email,
-      password: password
+      password: hashedPassword
     };
     users[randomUserID] = newUser;
     res.cookie('user_ID', randomUserID);
@@ -193,6 +196,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   let existingUserID;
+  
 
   //   If a user with that e-mail cannot be found, return a response with a 403 status code.
   // If a user with that e-mail address is located, compare the password given in the form with the existing user's password. If it does not match, return a response with a 403 status code.
@@ -200,14 +204,14 @@ app.post("/login", (req, res) => {
 
   // loop through users object to see if the email exists
   for (const userID in users) {
-    if (users[userID].email === email && users[userID].password === password) {
+    if (users[userID].email === email &&  bcrypt.compareSync(password, users[userID].password)) {
 
       // if username and password match redirct to urls
       existingUserID = users[userID].id;
       res.cookie('user_ID', existingUserID);
       res.redirect("/urls");
       return;
-    } else if (users[userID].email === email && users[userID].password !== password) {
+    } else if (users[userID].email === email && bcrypt.compareSync(password, users[userID].password) === false) {
       res.statusCode = 403;
       res.end("Oops! looks like the password is incorrect");
       return;
